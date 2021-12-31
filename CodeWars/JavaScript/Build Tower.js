@@ -16,5 +16,5 @@ function towerBuilder(nFloors) {
     return tower
 }
 
-arr = towerBuilder(2)
+const arr = towerBuilder(2)
 console.log(arr)
