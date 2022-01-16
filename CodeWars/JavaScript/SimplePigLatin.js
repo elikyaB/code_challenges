@@ -6,3 +6,8 @@ function pigIt(str){
 }
 
 console.log(pigIt('hi fly guy !'))
+
+// better answer
+// function pigIt(str){
+//     return str.replace(/(\w)(\w*)(\s|$)/g, "\$2\$1ay\$3")
+// }
