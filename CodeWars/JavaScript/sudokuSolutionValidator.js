@@ -5,9 +5,12 @@ function validSolution(board){
         if (board[i].reduce((t,n)=>{return t+n})!==45) {return false}
         else {board.forEach((r) => {col[i].push(r[i])})}
     }
-    for (let x=0; x<9; x+3) {
-        for (let y=0; y<9; y+3) {
-            board[]
+    for (let x=0; x<9; x+=3) {
+        for (let y=0; y<9; y+=3) {
+            let block = board[x].slice(y,y+3).concat(
+                board[x+1].slice(y,y+3), 
+                board[x+2].slice(y,y+3))
+            if (block.reduce((t,n)=>{return t+n})!==45) {return false}
         }
     }
     return col.every((c)=>{
@@ -29,9 +32,4 @@ const board = [
 
 console.log(validSolution(board))
 
-// console.log(board.map((n,i) => {
-//     console.log(i)
-//     return n
-// }))
-
-// console.log(board[0].reduce((t,n)=>{return t+n}))
+//
