@@ -43,34 +43,37 @@ function emailAlert() {
     for (let i = 1; i < data.length; i++) {
         const row = data[i];
     
-        const reminder = row[remindCol].match(/([0-9]+)\s(\w+)/)
-        if (reminder == null) {continue}
-        const value = Number(reminder[1])
-        const unit = reminder[2].toLowerCase()
+        const reminders = row[remindCol].match(/([0-9]+)\s(\w+)/g)
+        if (reminders == null) {continue}
+        for (reminder of reminders) {
+            reminder = reminder.split(' ')
+            const value = Number(reminder[0])
+            const unit = reminder[1].toLowerCase()
         
-        let alertDate
-        if (unit.includes('year')) {alertDate = remindMe(0,0,0,value)}
-        if (unit.includes('month')) {alertDate = remindMe(0,0,value,0)}
-        if (unit.includes('week')) {alertDate = remindMe(0,value,0,0)}
-        if (unit.includes('day')) {alertDate = remindMe(value,0,0,0)}
-    
-        const expirationDate = row[expireCol]
-    
-        if (compareDates(alertDate,expirationDate)) {
-            let message = row[messageCol]
-
-            let recipients = row[notifyCol].replace(/(,|;)/,' ').match(/[a-z,0-9,.,_,-,+]+@[a-z,0-9,-,.]+/ig)
-
-            let subject = 'Reminder: Project ' 
-                + row[projectCol] 
-                + ' is expiring '
-                + Utilities.formatDate(expirationDate, 'GMT', 'MM/dd/yyyy')
-                + ' with a BvA of ' 
-                + row[bvaCol]
-    
-            for (email of recipients) {
-                MailApp.sendEmail(email, subject, message)
-                Logger.log('notified ' + email)
+            let alertDate
+            if (unit.includes('year')) {alertDate = remindMe(0,0,0,value)}
+            if (unit.includes('month')) {alertDate = remindMe(0,0,value,0)}
+            if (unit.includes('week')) {alertDate = remindMe(0,value,0,0)}
+            if (unit.includes('day')) {alertDate = remindMe(value,0,0,0)}
+        
+            const expirationDate = row[expireCol]
+        
+            if (compareDates(alertDate,expirationDate)) {
+                let message = row[messageCol]
+                let recipients = row[notifyCol]
+                    .replace(/(,|;)/,' ')
+                    .match(/[a-z,0-9,.,_,-,+]+@[a-z,0-9,-,.]+/ig)
+                let subject = 'Reminder: Project ' 
+                    + row[projectCol] 
+                    + ' is expiring '
+                    + Utilities.formatDate(expirationDate, 'GMT', 'MM/dd/yyyy')
+                    + ' with a BvA of ' 
+                    + row[bvaCol]
+        
+                for (email of recipients) {
+                    MailApp.sendEmail(email, subject, message)
+                    Logger.log('notified ' + email)
+                }
             }
         }
     }
