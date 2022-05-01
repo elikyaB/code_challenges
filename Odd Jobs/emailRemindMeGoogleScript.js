@@ -59,7 +59,7 @@ function emailAlert() {
         if (compareDates(alertDate,expirationDate)) {
             let message = row[messageCol]
 
-            let recipients = row[notifyCol].replace(';',' ').match(/[a-z,0-9,.,_,-,+]+@[a-z,0-9,-,.]+/ig)
+            let recipients = row[notifyCol].replace(/(,|;)/,' ').match(/[a-z,0-9,.,_,-,+]+@[a-z,0-9,-,.]+/ig)
 
             let subject = 'Reminder: Project ' 
                 + row[projectCol] 
