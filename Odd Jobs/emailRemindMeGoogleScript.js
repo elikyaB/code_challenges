@@ -69,9 +69,7 @@ function emailAlert() {
             const expirationDate = row[expireCol]
             const reminders = row[remindCol].match(/([0-9]+)\s(\w+)/g)
             if (reminders == null) {continue}
-            const alreadyTested = {}
             for (reminder of reminders) {
-                
                 reminder = reminder.split(' ')
                 const value = Number(reminder[0])
                 const unit = reminder[1].toLowerCase()
