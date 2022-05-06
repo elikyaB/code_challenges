@@ -69,19 +69,28 @@ function emailAlert() {
             const expirationDate = row[expireCol]
             const reminders = row[remindCol].match(/([0-9]+)\s(\w+)/g)
             if (reminders == null) {continue}
+            const alerts = {}
             for (reminder of reminders) {
-                reminder = reminder.split(' ')
-                const value = Number(reminder[0])
-                const unit = reminder[1].toLowerCase()
+                switch (alerts[reminder]) {
+                    case false: break
+                    
+                    default:
+                    const parts = reminder.split(' ')
+                    const value = Number(parts[0])
+                    const unit = parts[1].toLowerCase()
+                
+                    let alertDate
+                    unit.includes('day')     ? alertDate = remindMe(value,0,0,0)
+                    : unit.includes('week')  ? alertDate = remindMe(0,value,0,0)
+                    : unit.includes('month') ? alertDate = remindMe(0,0,value,0)
+                    : unit.includes('year')  ? alertDate = remindMe(0,0,0,value)
+                    : Logger.log('Reminder Typo: ' + unit)
             
-                let alertDate
-                unit.includes('day')     ? alertDate = remindMe(value,0,0,0)
-                : unit.includes('week')  ? alertDate = remindMe(0,value,0,0)
-                : unit.includes('month') ? alertDate = remindMe(0,0,value,0)
-                : unit.includes('year')  ? alertDate = remindMe(0,0,0,value)
-                : Logger.log('Reminder Typo: ' + unit)
-            
-                if (compareDates(alertDate,expirationDate)) {
+                    if (compareDates(alertDate,expirationDate)) {
+                        alerts[reminder] = true
+                    } else { alerts[reminder] = false; break }
+
+                    case true:
                     let message = messageCol ? getCellRefs(row[messageCol])
                         : 'Location: ' + sheetName + ' in ' + spreadName + ' \n'
                         + 'Link: ' + spreadUrl
@@ -90,7 +99,7 @@ function emailAlert() {
                         .match(/[a-z,0-9,.,_,-,+]+@[a-z,0-9,-,.]+/ig)
                         : spreadOwner
                     let subject = subjectCol ? getCellRefs(row[subjectCol])
-                        : 'Reminder for ' + reminder.join(' ') + ' from now'
+                        : 'Reminder for ' + reminder + ' from now'
                     for (email of recipients) {
                         MailApp.sendEmail(email, subject, message)
                     }
