@@ -1,4 +1,5 @@
 function emailAlert() {
+
     // HELPER FUNCTIONS
     function remindMe(d=0,w=0,m=0,y=0) {
         const reminder = new Date()
@@ -20,80 +21,84 @@ function emailAlert() {
         if (text == null) {return ''}
         const refs = text.match(/\{\w+\}/g)
         if (refs != null) {
-            const cols = refs.map((ref)=>{
-                let colNum = 0
-                ref.match(/\w/g).forEach((r,i) => {
-                    colNum += (r[i].toUpperCase().charCodeAt()-65)+(26*i)
+            refs.forEach((ref)=>{
+                let n = 0
+                ref.match(/\w/g).forEach((r,l) => {
+                    n += (r.toUpperCase().charCodeAt()-65)+(26*l)
                 })
-                return colNum
+                text = text.replace(ref,row[n])
             })
-            for (let i=0; i<=refs.length; i++) {
-                text = text.replace(refs[i], row[cols[i]])
-            }
         }
         return text
     }
   
-    // DATA VALIDATION
+    // CORE LOOP
     const spread = SpreadsheetApp.getActiveSpreadsheet()
     const spreadName = spread.getName()
     const spreadUrl = spread.getUrl()
     const spreadOwner = spread.getOwner().getEmail()
+    const sheets = spread.getSheets()
 
-    const sheet = SpreadsheetApp.getActiveSheet()
-    const sheetName = sheet.getName()
-    const data = sheet.getSheetValues(1,1,-1,-1)
-    const thead = data[0]
-    let expireCol
-    let notifyCol
-    let messageCol
-    let remindCol
-    let subjectCol
-    for (let i = 0; i < thead.length; i++) {
-      let col = thead[i].toLowerCase()
-      if (col === 'end date') {expireCol = i}
-      if (col === 'notify') {notifyCol = i}
-      if (col === 'message') {messageCol = i}
-      if (col === 'reminder') {remindCol = i}
-      if (col === 'subject') {subjectCol = i}
-    }
-    if ( !expireCol || !remindCol ) {
-      throw new Error('Missing critical column')
-    }
-    
-    // SEND REMINDERS
-    for (let i = 1; i < data.length; i++) {
-        const row = data[i];
+    for (sheet of sheets) {
 
-        const expirationDate = row[expireCol]
-    
-        const reminders = row[remindCol].match(/([0-9]+)\s(\w+)/g)
-        if (reminders == null) {continue}
-        for (reminder of reminders) {
-            reminder = reminder.split(' ')
-            const value = Number(reminder[0])
-            const unit = reminder[1].toLowerCase()
+        // DATA VALIDATION
+        const sheetName = sheet.getName()
+        const data = sheet.getSheetValues(1,1,-1,-1)
+        const header = data[0]
+        let expireCol
+        let remindCol
+        let notifyCol
+        let messageCol
+        let subjectCol
+        for (let i = 0; i < header.length; i++) {
+            let col = header[i].toLowerCase()
+            if (col === 'end date') {expireCol = i}
+            if (col === 'reminder') {remindCol = i}
+            if (col === 'notify') {notifyCol = i}
+            if (col === 'subject') {subjectCol = i}
+            if (col === 'message') {messageCol = i}
+        }
+        if ( !expireCol || !remindCol ) {
+            Logger.log('Critical columns not present in ' + sheetName)
+            continue
+        }
         
-            let alertDate
-            unit.includes('day')     ? alertDate = remindMe(value,0,0,0)
-            : unit.includes('week')  ? alertDate = remindMe(0,value,0,0)
-            : unit.includes('month') ? alertDate = remindMe(0,0,value,0)
-            : unit.includes('year')  ? alertDate = remindMe(0,0,0,value)
-            : Logger.log('Reminder Typo: ' + unit)
-        
-            if (compareDates(alertDate,expirationDate)) {
-                let message = messageCol ? getCellRefs(row[messageCol])
-                    : 'Location: ' + sheetName + ' in ' + spreadName + ' \n'
-                    + 'Link: ' + spreadUrl
-                let recipients = notifyCol ? row[notifyCol]
-                    .replace(/(,|;)/,' ')
-                    .match(/[a-z,0-9,.,_,-,+]+@[a-z,0-9,-,.]+/ig)
-                    : spreadOwner
-                let subject = subjectCol ? getCellRefs(row[subjectCol])
-                    : 'Reminder for ' + reminder.join(' ') + ' from now'
-                for (email of recipients) {
-                    MailApp.sendEmail(email, subject, message)
-                    Logger.log('notified ' + email)
+        // SEND REMINDERS
+        for (let i = 1; i < data.length; i++) {
+            const row = data[i];
+            const expirationDate = row[expireCol]
+            const reminders = row[remindCol].match(/([0-9]+)\s(\w+)/g)
+            if (reminders == null) {continue}
+            for (reminder of reminders) {
+                reminder = reminder.split(' ')
+                const value = Number(reminder[0])
+                const unit = reminder[1].toLowerCase()
+            
+                let alertDate
+                unit.includes('day')     ? alertDate = remindMe(value,0,0,0)
+                : unit.includes('week')  ? alertDate = remindMe(0,value,0,0)
+                : unit.includes('month') ? alertDate = remindMe(0,0,value,0)
+                : unit.includes('year')  ? alertDate = remindMe(0,0,0,value)
+                : Logger.log('Reminder Typo: ' + unit)
+            
+                if (compareDates(alertDate,expirationDate)) {
+                    let message = messageCol ? getCellRefs(row[messageCol])
+                        : 'Location: ' + sheetName + ' in ' + spreadName + ' \n'
+                        + 'Link: ' + spreadUrl
+                    let recipients = notifyCol ? row[notifyCol]
+                        .replace(/(,|;)/,' ')
+                        .match(/[a-z,0-9,.,_,-,+]+@[a-z,0-9,-,.]+/ig)
+                        : spreadOwner
+                    let subject = subjectCol ? getCellRefs(row[subjectCol])
+                        : 'Reminder for ' + reminder.join(' ') + ' from now'
+                    for (email of recipients) {
+                        MailApp.sendEmail(email, subject, message)
+                    }
+                    Logger.log(
+                        'Notified: ' + recipients + '\n' +
+                        'Subject: ' + subject + '\n' +
+                        'Body: ' + message
+                    )
                 }
             }
         }
