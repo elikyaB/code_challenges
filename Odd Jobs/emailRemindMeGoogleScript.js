@@ -78,14 +78,12 @@ function emailAlert() {
                     const parts = reminder.split(' ')
                     const value = Number(parts[0])
                     const unit = parts[1].toLowerCase()
-                
                     let alertDate
-                    unit.includes('day')     ? alertDate = remindMe(value,0,0,0)
+                      unit.includes('day')   ? alertDate = remindMe(value,0,0,0)
                     : unit.includes('week')  ? alertDate = remindMe(0,value,0,0)
                     : unit.includes('month') ? alertDate = remindMe(0,0,value,0)
                     : unit.includes('year')  ? alertDate = remindMe(0,0,0,value)
                     : Logger.log('Reminder Typo: ' + unit)
-            
                     if (compareDates(alertDate,expirationDate)) {
                         alerts[reminder] = true
                     } else { alerts[reminder] = false; break }
