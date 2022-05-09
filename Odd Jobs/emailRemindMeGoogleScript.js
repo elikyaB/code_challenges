@@ -18,8 +18,7 @@ function emailAlert() {
     }
 
     function getCellRefs(text) {
-        if (text == null) {return ''}
-        const refs = text.match(/\{\w+\}/g)
+        const refs = text?.match(/\{\w+\}/g)
         if (refs != null) {
             refs.forEach((ref)=>{
                 let n = 0
@@ -38,6 +37,7 @@ function emailAlert() {
     const spreadUrl = spread.getUrl()
     const spreadOwner = spread.getOwner().getEmail()
     const sheets = spread.getSheets()
+    const alerts = { plural: {} } // dict of previously triggered reminders
 
     for (sheet of sheets) {
 
@@ -51,25 +51,22 @@ function emailAlert() {
         let messageCol
         let subjectCol
         for (let i = 0; i < header.length; i++) {
-            let col = header[i].toLowerCase()
+            let col = header[i].toLowerCase().trim()
             if (col === 'end date') {expireCol = i}
             if (col === 'reminder') {remindCol = i}
             if (col === 'notify') {notifyCol = i}
             if (col === 'subject') {subjectCol = i}
             if (col === 'message') {messageCol = i}
         }
-        if ( !expireCol || !remindCol ) {
-            Logger.log('Critical columns not present in ' + sheetName)
-            continue
-        }
+        if ( !expireCol || !remindCol ) {continue}
         
         // SEND REMINDERS
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
             const expirationDate = row[expireCol]
-            const reminders = row[remindCol].match(/([0-9]+)\s(\w+)/g)
-            if (reminders == null) {continue}
-            const alerts = {}
+            const reminders = row[remindCol]
+                .match(/([0-9]+)\s(day|week|month|year)/ig)
+            if (reminders == null) { continue }
             for (reminder of reminders) {
                 switch (alerts[reminder]) {
                     case false: break
@@ -86,6 +83,7 @@ function emailAlert() {
                     : Logger.log('Reminder Typo: ' + unit)
                     if (compareDates(alertDate,expirationDate)) {
                         alerts[reminder] = true
+                        if (value > 1) { alerts.plural[reminder] = true }
                     } else { alerts[reminder] = false; break }
 
                     case true:
@@ -93,11 +91,12 @@ function emailAlert() {
                         : 'Location: ' + sheetName + ' in ' + spreadName + ' \n'
                         + 'Link: ' + spreadUrl
                     let recipients = notifyCol ? row[notifyCol]
-                        .replace(/(,|;)/,' ')
-                        .match(/[a-z,0-9,.,_,-,+]+@[a-z,0-9,-,.]+/ig)
+                        .match(/[a-z 0-9 . _ - +]+@[a-z 0-9 - .]+/ig)
                         : spreadOwner
                     let subject = subjectCol ? getCellRefs(row[subjectCol])
-                        : 'Reminder for ' + reminder + ' from now'
+                        : 'Reminder for ' 
+                        + (alerts.plural[reminder] ? reminder + 's' : reminder)
+                        + ' from now'
                     for (email of recipients) {
                         MailApp.sendEmail(email, subject, message)
                     }
