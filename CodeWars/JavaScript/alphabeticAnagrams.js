@@ -9,8 +9,6 @@ function factorialize (n, f=1) {
     }
 }
 
-let position = 1
-
 function checkDupes (array) {
     let multiples = {}
     let divideOutDupe = 1
@@ -23,20 +21,17 @@ function checkDupes (array) {
     return divideOutDupe
 }
 
+let position = 1
+
 function listPosition (word, start=true) {
-    if (start) {position = 1} // prevent jank
+    if (start) { position = 1 } // prevent jank
 
     if (word.length>1) {
         let sorted = word.split('').sort()
-        // console.log(word.split(''), sorted)
         
         sorted.findIndex((l)=>{
             if (l == word[0]) { return true }
-            else {
-                // console.log(`${position} += ${factorialize(word.length-1)} / ${checkDupes(sorted)}`)
-                position += factorialize(word.length-1) / checkDupes(sorted) 
-            }
-            // console.log(l, word[0], position)
+            else { position += factorialize(word.length-1) / checkDupes(sorted) }
         })
         
         listPosition(word.slice(1), start=false)
