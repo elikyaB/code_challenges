@@ -23,6 +23,8 @@ function radixSort (arr) {
 const generateArray = require('./generateArray')
 const randomArray = generateArray(10, -100, 100)
 console.log(randomArray)
-console.log(radixSort(randomArray))
+// console.log(radixSort(randomArray))
 // console.log(radixSort([12,6,3,7,13,8]))
 // console.log(radixSort([-3,7,-1,-88,5,100]))
+
+console.log(radixSort(randomArray))

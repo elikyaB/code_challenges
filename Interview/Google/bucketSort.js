@@ -3,28 +3,27 @@
 // sort each bucket
 // add buckets back into original arr
 
-function bucketSort(arr) {
+const divideAndConquer = require('./divideAndConquer')
+
+function bucketSort(array) {
+    const k = Math.round(Math.sqrt(array.length))
+
+    let min, max
+    for (let i=0; i<array.length; i++) {
+        if (min==undefined) {min=array[i]}
+        if (array[i] < min) {min=array[i]}
+        if (max==undefined) {max=array[i]}
+        if (array[i] > max) {max=array[i]}
+    }
+
     const buckets = []
-    const numOfBuckets = Math.round(Math.sqrt(arr.length))
-    const min = Math.min(...arr)
-    const max = Math.max(...arr)
-    const bucketRange = (Math.abs(min) + Math.abs(max)) / numOfBuckets
-    // console.log(numOfBuckets, min, max, bucketRange)
-    for (let i=0; i<arr.length; i++) {
-        let ele = arr[i]
-        for (let b=0; b<numOfBuckets; b++) {
-            if (ele <= min+(b+1)*bucketRange) {
-                if (buckets[b]==undefined) {buckets[b] = [ele]}
-                else {
-                    for (let e=0; e<buckets[b].length; e++) {
-                        if (ele < buckets[b][e]) {buckets[b].splice(e,0,ele); break}
-                        else if (e == buckets[b].length-1) {buckets[b].push(ele); break}
-                    }
-                }
-                // console.log(buckets)
-                break
-            }
-        }
+    const bucketRange = (Math.abs(min) + Math.abs(max)) / k
+
+    for (let i=0; i<array.length; i++) {
+        let e = array[i]
+        let b = Math.floor((e-min)/bucketRange)
+        if (buckets[b]==undefined) {buckets[b] = [e]}
+        else {buckets[b].splice(divideAndConquer(buckets[b],e),0,e)} // O(log(n))
     }
     return [].concat(...buckets)
 }
@@ -34,5 +33,5 @@ const generateArray = require('./generateArray')
 const randomArray = generateArray(10, -100, 100)
 console.log(randomArray)
 console.log(bucketSort(randomArray))
-console.log(bucketSort([12,6,3,7,13,8]))
-console.log(bucketSort([-3,7,-1,-88,5,100]))
+// console.log(bucketSort([12,6,3,7,13,8]))
+// console.log(bucketSort([-3,7,-1,-88,5,100]))
