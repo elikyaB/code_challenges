@@ -1,3 +1,5 @@
+// sliding window technique halving the index to approach index for .splice
+
 function divideAndConquer (arr, ele, l=null, r=null) {
     let i
     if (l!==null) {i = l + Math.floor((r-l)/2)}
