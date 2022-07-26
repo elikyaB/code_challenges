@@ -1,3 +1,7 @@
+// split array into 2
+// recursively call merge on each split
+// return single-item array to merge function for sorting
+
 function mergeSort (array) {
 
     const separate = (arr) => {
