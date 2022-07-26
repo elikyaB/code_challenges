@@ -3,7 +3,7 @@
 // sort each bucket
 // add buckets back into original arr
 
-const divideAndConquer = require('./divideAndConquer')
+const binarySearch = require('./binarySearch')
 
 function bucketSort(array) {
     const k = Math.round(Math.sqrt(array.length))
@@ -21,7 +21,7 @@ function bucketSort(array) {
         let e = array[i]
         let b = Math.floor((e-min)/bucketRange)
         if (buckets[b]==undefined) {buckets[b] = [e]}
-        else {buckets[b].splice(divideAndConquer(buckets[b],e),0,e)} // O(log(n))
+        else {buckets[b].splice(binarySearch(buckets[b],e),0,e)} // O(log(n))
     }
     return [].concat(...buckets)
 }
