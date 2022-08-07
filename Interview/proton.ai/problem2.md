@@ -1,1 +1,0 @@
-[Codepen Solution](https://codepen.io/Elikya/pen/BamEGQX)
