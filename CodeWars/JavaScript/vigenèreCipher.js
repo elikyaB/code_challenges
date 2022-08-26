@@ -1,32 +1,17 @@
 // https://www.codewars.com/kata/52d1bd3694d26f8d6e0000d3/train/javascript
 
 function VigenèreCipher(key, abc) {
-    this.encode = function (str) {
-      
-    };
-    this.decode = function (str) {
-      //...
-    };
-}
-
-function test (str) {
-    let arr = []
-    key = 'password'
-    let keyIndex
-    let i = 0
-    let a = 'a'.charCodeAt()
-    let z = 'z'.charCodeAt()
-    let alphabet = z-a
-    console.log(a,z)
-    for (l of str) {
-        keyIndex = i<key.length ? i : key.length%i
-        let cipher = l.charCodeAt()+key[keyIndex].charCodeAt()
-        if (cipher>=z) {cipher = a + z % cipher}
-        arr.push(cipher)
-        console.log(cipher,String.fromCharCode(cipher))
-        i++
+    let dict = {}; [].map.call(abc, (l, i)=>{dict[l] = i})
+    console.log(dict)
+    this.encode = (str) => cipher(1, str)
+    this.decode = (str) => cipher(-1, str)
+    function cipher (dir, str) {
+        return [].map.call(str, (l, i)=>{
+            return isNaN(dict[l]) ? l : abc[(abc.length + dict[l] + dict[key[i % key.length]] * dir) % abc.length]
+        }).join('')
     }
-    return String.fromCharCode(...arr)
 }
 
-console.log(test('codewars'))
+const str = new VigenèreCipher('password', 'abcdefghijklmnopqrstuvwxyz')
+console.log(str.encode('codewars'))
+console.log(str.decode('laxxhsj'))
