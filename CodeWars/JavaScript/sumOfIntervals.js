@@ -62,62 +62,17 @@ function sumIntervals (intervals, previous=[]) {
     return sum
 }
 
-const test1 = [ [ 1, 5 ], [ 1, 5 ] ]
-sumIntervals(test1)
+function testArray (n, range=[-100,100]) {
+    let result = []
+    let absRange = range[1]-range[0]
+    for (let i=0; i<n; i++) {
+        const randN = () => Math.round(Math.random()*absRange)
+        let a = range[0] + randN(), b = range[0] + Math.round(randN())
+        result.push([Math.min(a,b), Math.max(a,b)])
+    }
 
-const test2 = [ [ 1, 5 ], [ 5, 10 ] ]
-sumIntervals(test2)
+    console.log(result)
+    return result
+}
 
-const test3 = [ [ 1, 4 ], [ 3, 6 ], [ 5, 8 ], [ 7, 10 ], [ 9, 12 ] ]
-sumIntervals(test3)
-
-const test4 = [ [ 1, 4 ], [ 7, 10 ], [ 3, 5 ] ]
-sumIntervals(test4)
-
-const test5 = [ [ 1, 20 ], [ 2, 19 ], [ 5, 15 ], [ 8, 12 ] ]
-sumIntervals(test5)
-
-const test6 = [ [ 1, 5 ], [ 10, 20 ], [ 1, 6 ], [ 16, 19 ], [ 5, 11 ] ]
-sumIntervals(test6)
-
-const test7 = [ [ 1, 5 ], [ 10, 20 ], [ 1, 6 ], [ 16, 19 ], [ 5, 11 ] ]
-sumIntervals(test7)
-
-const test8 = [ [ 1, 11 ], [ 10, 20 ] ]
-sumIntervals(test8)
-
-const test9 = [ [ 2, 3 ], [ 2, 6 ], [ 2, 4 ], [ 2, 9 ], [ 2, 5 ] ]
-sumIntervals(test9)
-
-const test10 = [ [ 3, 9 ], [ -6, -2 ], [ -2, 1 ], [ -13, -7 ] ]
-sumIntervals(test10)
-
-const test11 = [ [ -13, -7 ], [ -6, 1 ], [ 3, 9 ] ]
-sumIntervals(test11)
-
-const test12 = [ [ 8, 14 ] ]
-sumIntervals(test12)
-
-const test13 = [ [ -10, 0 ], [ -3, 5 ], [ 3, 9 ] ]
-sumIntervals(test13)
-
-const test14 = [
-  [ -18, -13 ],
-  [ 8, 16 ],
-  [ 4, 5 ],
-  [ 15, 20 ],
-  [ 8, 10 ],
-  [ 0, 8 ],
-  [ -9, -1 ]
-]
-sumIntervals(test14)
-
-const test15 = [
-  [ -18, -13 ],
-  [ -9, -1 ],
-  [ 0, 8 ],
-  [ 8, 10 ],
-  [ 15, 20 ],
-  [ 8, 16 ]
-]
-sumIntervals(test15)
+sumIntervals(testArray(3))
