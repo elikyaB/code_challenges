@@ -31,5 +31,3 @@ const board = [
   ]
 
 console.log(validSolution(board))
-
-//
